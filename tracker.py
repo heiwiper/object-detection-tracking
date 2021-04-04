@@ -1,7 +1,6 @@
 import cv2
 from random import randint
-
-HISTORY_THRESHOLD = 30
+from configuration import TRACK_HIST_THRESHOLD, TRACKING_ALGO
 
 class Tracker:
     def __init__(self):
@@ -18,7 +17,7 @@ class Tracker:
         self.history = []
 
         # After how many frames the object should be discarded
-        self.historyThreshold = HISTORY_THRESHOLD
+        self.historyThreshold = TRACK_HIST_THRESHOLD
 
         # Color of each object
         self.colors = []
@@ -48,12 +47,18 @@ class Tracker:
         newTrajectory = Trajectory()
         self.trajectories.append(newTrajectory)
 
-        # newTracker = cv2.legacy.TrackerMedianFlow_create()  # Garbage
-        # newTracker = cv2.legacy.TrackerCSRT_create()  # good but doesn't report failure
-        newTracker = cv2.legacy.TrackerMOSSE_create()  # Very good
-        # newTracker = cv2.legacy.TrackerMIL_create()  # okay, doesn't report failure
-        # newTracker = cv2.TrackerGOTURN_create()
-        # newTracker = cv2.TrackerKCF_create()  # Very good
+        if TRACKING_ALGO == 1:
+            newTracker = cv2.legacy.TrackerMOSSE_create()
+        elif TRACKING_ALGO == 2:
+            newTracker = cv2.TrackerKCF_create()
+        elif TRACKING_ALGO == 3:
+            newTracker = cv2.legacy.TrackerMIL_create()
+        elif TRACKING_ALGO == 4:
+            newTracker = cv2.legacy.TrackerCSRT_create()
+        elif TRACKING_ALGO == 5:
+            newTracker = cv2.TrackerGOTURN_create()
+        elif TRACKING_ALGO == 6:
+            newTracker = cv2.legacy.TrackerMedianFlow_create()
         newTracker.init(frame, (bbox[0], bbox[1], bbox[2], bbox[3]))
         self.trackers.append(newTracker)
 
