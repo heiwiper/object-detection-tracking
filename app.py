@@ -229,8 +229,42 @@ class MainWindow(BoxLayout):
         elif self.ids['tracking_spinner'].text == "Median Flow":
             TRACKING_ALGO = 6
         print("{} {}".format(self.ids['tracking_spinner'].text, TRACKING_ALGO))
-            
 
+    def switch_model(self, model):
+        global HOG_MODEL
+        HOG_MODEL = model
+
+    def update_bg_hist_thresh(self):
+        global BG_HIST_THRESHOLD
+        BG_HIST_THRESHOLD = int(self.ids['bg_hist_thresh_slider'].value)
+            
+    def update_bg_thresh(self):
+        global BG_THRESHOLD
+        BG_THRESHOLD = int(self.ids['bg_thresh_slider'].value)
+
+    def update_area_thresh(self):
+        global AREA_THRESHOLD
+        AREA_THRESHOLD = int(self.ids['area_thresh_slider'].value)
+
+    def update_scale_factor(self):
+        global SCALE_FACTOR
+        SCALE_FACTOR = self.ids['scale_factor_slider'].value
+
+    def update_min_neighbors(self):
+        global MIN_NEIGHBORS
+        MIN_NEIGHBORS = int(self.ids['min_neighbors_slider'].value)
+        
+    def update_padding(self):
+        global PADDING
+        temp = int(self.ids['padding_slider'].value)
+        PADDING = (temp, temp)
+        
+    def update_win_stride(self):
+        global WIN_STRIDE
+        temp = int(self.ids['win_stride_slider'].value)
+        WIN_STRIDE = (temp, temp)
+
+        
 class TrackingApp(App):
     def build(self):
         # videos = ['backdoor', 'bungalows', 'highway', 'office', 'pedestrians', 'peopleInShade', 'PETS2006']
