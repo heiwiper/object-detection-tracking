@@ -1,9 +1,9 @@
 import cv2
 from random import randint
-from configuration import TRACK_HIST_THRESHOLD
+from configuration import TRACK_HIST_THRESHOLD, TRACKING_ALGO
 
 class Tracker:
-    def __init__(self, TRACKING_ALGO):
+    def __init__(self):
         # Main counter which used for objects IDs
         self.count = 0
 
@@ -31,8 +31,6 @@ class Tracker:
         # File to save objects trajectories
         self.file = open('trajectories.txt', 'w')
 
-        self.TRACKING_ALGO = TRACKING_ALGO
-
     def addObject(self, bbox, frame):
         self.bboxes.append(bbox)
         # hls = (randint(0, 180), 127, 255)
@@ -49,17 +47,17 @@ class Tracker:
         newTrajectory = Trajectory()
         self.trajectories.append(newTrajectory)
 
-        if self.TRACKING_ALGO == 1:
+        if TRACKING_ALGO == 1:
             newTracker = cv2.legacy.TrackerMOSSE_create()
-        elif self.TRACKING_ALGO == 2:
+        elif TRACKING_ALGO == 2:
             newTracker = cv2.TrackerKCF_create()
-        elif self.TRACKING_ALGO == 3:
+        elif TRACKING_ALGO == 3:
             newTracker = cv2.legacy.TrackerMIL_create()
-        elif self.TRACKING_ALGO == 4:
+        elif TRACKING_ALGO == 4:
             newTracker = cv2.legacy.TrackerCSRT_create()
-        elif self.TRACKING_ALGO == 5:
+        elif TRACKING_ALGO == 5:
             newTracker = cv2.TrackerGOTURN_create()
-        elif self.TRACKING_ALGO == 6:
+        elif TRACKING_ALGO == 6:
             newTracker = cv2.legacy.TrackerMedianFlow_create()
         newTracker.init(frame, (bbox[0], bbox[1], bbox[2], bbox[3]))
         self.trackers.append(newTracker)
@@ -90,21 +88,23 @@ class Tracker:
                 cy = int((y + y + h) // 2)
                 self.trajectories[i].points.append((cx, cy, frameIndex))
 
-    def draw(self, frame):
+    def draw(self, frame, rectangle, trace):
         for i, bbox in enumerate(self.bboxes):
             p1 = (int(bbox[0]), int(bbox[1]))
             p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-            cv2.rectangle(frame, p1, p2,
-                            (self.colors[i][0],
-                            self.colors[i][1],
-                            self.colors[i][2]),
-                            2, 1)
-            for point in self.trajectories[i].points:
-                cv2.circle(frame, (point[0], point[1]), radius=1,
-                            color=(self.colors[i][0],
-                                    self.colors[i][1],
-                                    self.colors[i][2]),
-                            thickness=-1)
+            if(rectangle):
+                cv2.rectangle(frame, p1, p2,
+                                (self.colors[i][0],
+                                self.colors[i][1],
+                                self.colors[i][2]),
+                                2, 1)
+            if(trace):
+                for point in self.trajectories[i].points:
+                    cv2.circle(frame, (point[0], point[1]), radius=1,
+                                color=(self.colors[i][0],
+                                        self.colors[i][1],
+                                        self.colors[i][2]),
+                                thickness=-1)
             # cv2.rectangle(copy, p1, p2,
             #                 (colors[i][0],
             #                 colors[i][1],
