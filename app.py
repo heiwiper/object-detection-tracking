@@ -48,8 +48,9 @@ class MainWindow(BoxLayout):
 
             def load_images():
                 content = ProgressBar(max = file_count)
-                popup = Popup(title='Loading images...', content=content,
-                            size_hint=(0.4, 0.1), auto_dismiss=False)
+                popup = Popup(title='Loading {} images...'.format(DATASETS_DIRS[VIDEO-1]),
+                              content=content, size_hint=(0.4, 0.1),
+                              auto_dismiss=False)
                 popup.open()
 
                 DIRECTORY_PATH = 'dataset/{}/input/'.format(DATASETS_DIRS[VIDEO-1])
@@ -61,7 +62,7 @@ class MainWindow(BoxLayout):
                     n = cv2.imread(frame)
                     self.frames.append(n)
                     content.value += 1
-                    # popup.to
+                    popup.title = 'Loading {} images {}/{}'.format(DATASETS_DIRS[VIDEO-1], int(content.value),file_count)
 
                 popup.dismiss()
                 self.ids['video_spinner'].disabled = False
@@ -77,6 +78,10 @@ class MainWindow(BoxLayout):
         else:
             def start_tracking():
                 tracker = Tracker(TRACKING_ALGO)
+                self.log()
+                print("[BBOXES] : {}".format(len(tracker.bboxes)))
+                trace = True
+                rectangle = True
                 if DETECTION_ALGO == 1:
                     objectDetector = cv2.createBackgroundSubtractorMOG2(
                         history=BG_HIST_THRESHOLD,
@@ -121,7 +126,7 @@ class MainWindow(BoxLayout):
                                                                     scaleFactor=SCALE_FACTOR,
                                                                     minNeighbors=MIN_NEIGHBORS)
                         elif HOG_MODEL == 2:
-                            (regions, _) = objectDetector.detectMultiScale(frame,
+                            (objects, _) = objectDetector.detectMultiScale(frame,
                                                                         winStride=WIN_STRIDE,
                                                                         padding=PADDING,
                                                                         scale=SCALE_FACTOR)
@@ -174,16 +179,42 @@ class MainWindow(BoxLayout):
                         tracker.update(frame, frameIndex, TRACK_HIST_THRESHOLD)
 
                         # Draw bounding boxes and trajectories
-                        tracker.draw(frame)
+                        tracker.draw(frame, rectangle, trace)
 
+
+                    message="Frame: {:03d}  Nbr objet: {:d}   [r]Rectangle: {:3}  [t]Trace: {:3}".format(frameIndex,
+                          len(tracker.bboxes),
+                          "ON" if rectangle else "OFF",
+                          "ON" if trace else "OFF")
+                
+                    width = int(frame.shape[1] * 2)
+                    height = int(frame.shape[0] * 2)
+
+                    copy = cv2.resize(copy, (width, height))
+                    frame = cv2.resize(frame, (width, height))
+
+                    cv2.putText(frame,
+                                message,
+                                (5, 15),
+                                cv2.FONT_HERSHEY_PLAIN,
+                                1.1,
+                                (100, 255, 70),
+                                2)
                     # cv2.imshow('Detection', copy)
                     cv2.imshow('Tracking', frame)
 
                     key = cv2.waitKey(30)
+                    if key==ord('t'):
+                        trace=not trace
+                    if key==ord('r'):
+                        rectangle=not rectangle
                     if key == 27:
                         tracker.file.close()
                         cv2.destroyAllWindows()
                         break
+                
+                tracker.file.close()
+                cv2.destroyAllWindows()
 
             start_tracking()
 
@@ -263,6 +294,36 @@ class MainWindow(BoxLayout):
         global WIN_STRIDE
         temp = int(self.ids['win_stride_slider'].value)
         WIN_STRIDE = (temp, temp)
+
+    def log(self):
+        print("Configuration---------------------")
+        if DETECTION_ALGO == 1:
+            print("[Detection] : Background substraction")
+            print("[Bg sub threshold] : {}".format(BG_THRESHOLD))
+            print("[Bg sub hist threshold] : {}".format(BG_HIST_THRESHOLD))
+            print("[Area threshold] : {}".format(AREA_THRESHOLD))
+        elif DETECTION_ALGO == 2:
+            print("[Detection] : HOG")
+            if HOG_MODEL == 1:
+                print("[HOG Model] : Cars")
+            elif HOG_MODEL == 2:
+                print("[HOG Model] : Pedestrians")
+            print("[Window Stride] : {}".format(WIN_STRIDE))
+            print("[Padding] : {}".format(PADDING))
+            print("[Min neighbors] : {}".format(MIN_NEIGHBORS))
+            print("[Scale factor] : {}".format(SCALE_FACTOR))
+        if DETECTION_ALGO == 1:
+            print("[Tracking] : MOSSE")
+        elif DETECTION_ALGO == 2:
+            print("[Tracking] : KFC")
+        elif DETECTION_ALGO == 3:
+            print("[Tracking] : MIL")
+        elif DETECTION_ALGO == 4:
+            print("[Tracking] : CSRT")
+        elif DETECTION_ALGO == 5:
+            print("[Tracking] : GOTURN")
+        elif DETECTION_ALGO == 6:
+            print("[Tracking] : Median Flow")
 
         
 class TrackingApp(App):
