@@ -18,11 +18,16 @@ for frame in filenames:
 
 print("Finished reading images")
 
-tracker = Tracker(TRACKING_ALGO)
+tracker = Tracker()
 
+trace = True
+rectangle = True
 
 #Main Function
 def main():
+    global trace
+    global rectangle
+    
     if DETECTION_ALGO == 1:
         objectDetector = cv2.createBackgroundSubtractorMOG2(
             history=BG_HIST_THRESHOLD,
@@ -39,7 +44,7 @@ def main():
     for frameIndex, frame in enumerate(frames):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         copy = frame.copy()
-
+        
         # Replace the detections list with detected objects
         detections = []
         if DETECTION_ALGO == 1:
@@ -120,12 +125,37 @@ def main():
             tracker.update(frame, frameIndex, TRACK_HIST_THRESHOLD)
 
             # Draw bounding boxes and trajectories
-            tracker.draw(frame)
+            tracker.draw(frame, rectangle, trace)
 
+        
+        message="Frame: {:03d}  Nbr objet: {:d}   [r]Rectangle: {:3}  [t]Trace: {:3}".format(frameIndex,
+                                                                                                len(tracker.bboxes),
+                                                                                                "ON" if rectangle else "OFF",
+                                                                                                "ON" if trace else "OFF")
+        
+        width = int(frame.shape[1] * 2)
+        height = int(frame.shape[0] * 2)
+        
+        copy = cv2.resize(copy, (width, height))
+        frame = cv2.resize(frame, (width, height))
+        
+        cv2.putText(frame,
+                    message,
+                    (5, 15),
+                    cv2.FONT_HERSHEY_PLAIN,
+                    1.1,
+                    (100, 255, 70),
+                    2)
+        
         cv2.imshow('Detection', copy)
         cv2.imshow('Tracking', frame)
 
         key = cv2.waitKey(30)
+        
+        if key==ord('t'):
+            trace=not trace
+        if key==ord('r'):
+            rectangle=not rectangle
         if key == 27:
             break
 
