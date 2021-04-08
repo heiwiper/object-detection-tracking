@@ -70,6 +70,10 @@ class MainWindow(BoxLayout):
                 self.ids['tracking_spinner'].disabled = False
                 self.ids['play_button'].disabled = False
                 self.ids['pause_button'].disabled = False
+                if DETECTION_ALGO == 1:
+                    self.ids['bg_sub_boxlayout'].disabled = False
+                if DETECTION_ALGO == 2:
+                    self.ids['hog_boxlayout'].disabled = False
 
             thread = threading.Thread(target=load_images)
             thread.start()
@@ -97,12 +101,13 @@ class MainWindow(BoxLayout):
 
                 for frameIndex, frame in enumerate(self.frames):
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    copy = frame.copy()
+                    copy1 = frame.copy()
+                    copy2 = frame.copy()
 
                     # Replace the detections list with detected objects
                     detections = []
                     if DETECTION_ALGO == 1:
-                        mask = objectDetector.apply(frame)
+                        mask = objectDetector.apply(copy1)
                         _, mask = cv2.threshold(mask, 254, 255,
                                                 cv2.THRESH_BINARY)
                         contours, _ = cv2.findContours(mask, cv2.RETR_TREE,
@@ -116,7 +121,7 @@ class MainWindow(BoxLayout):
                         for (x1, y1, x2, y2) in pick:
                             area = (x2-x1) * (y2-y1)
                             if area > AREA_THRESHOLD:
-                                cv2.rectangle(copy, (x1, y1), (x2, y2), (0, 255, 0), 3)
+                                cv2.rectangle(copy2, (x1, y1), (x2, y2), (0, 255, 0), 3)
                                 detections.append([x1, y1, x2-x1, y2-y1])
                         cv2.imshow("Mask", mask)
 
@@ -126,13 +131,13 @@ class MainWindow(BoxLayout):
                                                                     scaleFactor=SCALE_FACTOR,
                                                                     minNeighbors=MIN_NEIGHBORS)
                         elif HOG_MODEL == 2:
-                            (objects, _) = objectDetector.detectMultiScale(frame,
+                            (objects, _) = objectDetector.detectMultiScale(copy1,
                                                                         winStride=WIN_STRIDE,
                                                                         padding=PADDING,
                                                                         scale=SCALE_FACTOR)
 
                         for (x, y, w, h) in objects:
-                            cv2.rectangle(copy, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                            cv2.rectangle(copy2, (x, y), (x+w, y+h), (0, 0, 255), 2)
                             detections.append([x, y, w, h])
 
                     # One or multiple objects detected
@@ -141,7 +146,7 @@ class MainWindow(BoxLayout):
                         if len(tracker.bboxes) == 0:
                             # Add the detected objects to be tracked
                             for bbox in detections:
-                                tracker.addObject(bbox, frame)
+                                tracker.addObject(bbox, copy1)
 
                         elif len(tracker.bboxes) < len(detections):
                             for index, bbox in enumerate(detections):
@@ -152,7 +157,7 @@ class MainWindow(BoxLayout):
 
                                 # Object is no longer detected
                                 if pick.shape[0] == len(tracker.bboxes) + 1:
-                                    tracker.addObject(bbox, frame)
+                                    tracker.addObject(bbox, copy1)
 
                         # There already is one or multiple objects being tracked
                         elif len(tracker.bboxes) > 0:
@@ -176,10 +181,10 @@ class MainWindow(BoxLayout):
                                         tracker.removeObject(i)
 
                         # Track every object in the tracking list
-                        tracker.update(frame, frameIndex, TRACK_HIST_THRESHOLD)
+                        tracker.update(copy1, frameIndex, TRACK_HIST_THRESHOLD)
 
                         # Draw bounding boxes and trajectories
-                        tracker.draw(frame, rectangle, trace)
+                        tracker.draw(copy1, rectangle, trace)
 
 
                     message="Frame: {:03d}  Nbr objet: {:d}   [r]Rectangle: {:3}  [t]Trace: {:3}".format(frameIndex,
@@ -187,21 +192,21 @@ class MainWindow(BoxLayout):
                           "ON" if rectangle else "OFF",
                           "ON" if trace else "OFF")
                 
-                    width = int(frame.shape[1] * 2)
-                    height = int(frame.shape[0] * 2)
+                    width = int(copy1.shape[1] * 2)
+                    height = int(copy1.shape[0] * 2)
 
-                    copy = cv2.resize(copy, (width, height))
-                    frame = cv2.resize(frame, (width, height))
+                    copy2 = cv2.resize(copy2, (width, height))
+                    copy1 = cv2.resize(copy1, (width, height))
 
-                    cv2.putText(frame,
+                    cv2.putText(copy1,
                                 message,
                                 (5, 15),
                                 cv2.FONT_HERSHEY_PLAIN,
                                 1.1,
                                 (100, 255, 70),
                                 2)
-                    # cv2.imshow('Detection', copy)
-                    cv2.imshow('Tracking', frame)
+                    cv2.imshow('Detection', copy2)
+                    cv2.imshow('Tracking', copy1)
 
                     key = cv2.waitKey(30)
                     if key==ord('t'):
@@ -239,10 +244,14 @@ class MainWindow(BoxLayout):
 
     def switch_detection_algo(self):
         global DETECTION_ALGO
-        if self.ids['detection_spinner'].text == "Background substraction":
+        if self.ids['detection_spinner'].text == "Background\nsubstraction":
             DETECTION_ALGO = 1
+            self.ids['bg_sub_boxlayout'].disabled = False
+            self.ids['hog_boxlayout'].disabled = True
         elif self.ids['detection_spinner'].text == "Haarcascade":
             DETECTION_ALGO = 2
+            self.ids['hog_boxlayout'].disabled = False
+            self.ids['bg_sub_boxlayout'].disabled = True
         print(self.ids['detection_spinner'].text)
 
     def switch_tracking_algo(self):

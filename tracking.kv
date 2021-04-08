@@ -14,12 +14,15 @@
                 orientation: 'horizontal'
                 BoxLayout:
                     id: hog_boxlayout
+                    disabled: True
                     orientation: 'vertical'
                     size_hint_y: 0.8
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
                             text: 'Haarcascade\nmodel'
+                            halign: 'left'
+                            valign: 'middle'
                         ToggleButton:
                             text: 'Cars'
                             group: 'model'
@@ -32,7 +35,9 @@
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
-                            text: 'Scale factor\n[color=50fa7b]{:0.2f}[/color]'.format(scale_factor_slider.value)
+                            text: 'Scale factor [color=50fa7b]{:0.2f}[/color]'.format(scale_factor_slider.value)
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: scale_factor_slider
@@ -45,7 +50,9 @@
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
-                            text: 'Minimum neighbors\n[color=50fa7b]{}[/color]'.format(int(min_neighbors_slider.value))
+                            text: 'Minimum neighbors [color=50fa7b]{}[/color]'.format(int(min_neighbors_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: min_neighbors_slider
@@ -58,7 +65,9 @@
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
-                            text: 'Padding\n[color=50fa7b]({}, {})[/color]'.format(int(padding_slider.value), int(padding_slider.value))
+                            text: 'Padding [color=50fa7b]({}, {})[/color]'.format(int(padding_slider.value), int(padding_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: padding_slider
@@ -71,7 +80,9 @@
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
-                            text: 'Window stride\n[color=50fa7b]({}, {})[/color]'.format(int(win_stride_slider.value), int(win_stride_slider.value))
+                            text: 'Window stride [color=50fa7b]({}, {})[/color]'.format(int(win_stride_slider.value), int(win_stride_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: win_stride_slider
@@ -83,11 +94,14 @@
                             on_touch_up: root.update_win_stride()
                 BoxLayout:
                     orientation: 'vertical'
-                    id: bg_sub_boxLayout
+                    id: bg_sub_boxlayout
+                    disabled: True
                     BoxLayout:
                         orientation: 'horizontal'
                         Label:
                             text: 'Background substraction\nspeed (frames) [color=50fa7b]{}[/color]'.format(int(bg_hist_thresh_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: bg_hist_thresh_slider
@@ -101,6 +115,8 @@
                         orientation: 'horizontal'
                         Label:
                             text: 'Background substraction\nthreshold [color=50fa7b]{}[/color]'.format(int(bg_thresh_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: bg_thresh_slider
@@ -114,14 +130,16 @@
                         orientation: 'horizontal'
                         Label:
                             text: 'Area threshold\n(pixels) [color=50fa7b]{}[/color]'.format(int(area_thresh_slider.value))
+                            halign: 'left'
+                            valign: 'middle'
                             markup: True
                         Slider:
                             id: area_thresh_slider
                             value: 1000
                             cursor_size: ('25', '25')
-                            min: 1000
-                            max: 100000
-                            step: 200
+                            min: 200
+                            max: 10000
+                            step: 100
                             on_touch_up: root.update_area_thresh()
                     
             BoxLayout:
@@ -148,7 +166,7 @@
                 Spinner:
                     id: detection_spinner
                     text: "Haarcascade"
-                    values: "Background substraction", "Haarcascade"
+                    values: "Background\nsubstraction", "Haarcascade"
                     # size_hint: (None, None)
                     size_hint_y: None
                     height: '48dp'
