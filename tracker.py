@@ -1,9 +1,9 @@
 import cv2
 from random import randint
-from configuration import TRACK_HIST_THRESHOLD, TRACKING_ALGO
+from configuration import TRACK_HIST_THRESHOLD
 
 class Tracker:
-    def __init__(self):
+    def __init__(self, TRACKING_ALGO):
         # Main counter which used for objects IDs
         self.count = 0
 
@@ -31,6 +31,8 @@ class Tracker:
         # File to save objects trajectories
         self.file = open('trajectories.txt', 'w')
 
+        self.TRACKING_ALGO = TRACKING_ALGO
+
     def addObject(self, bbox, frame):
         self.bboxes.append(bbox)
         # hls = (randint(0, 180), 127, 255)
@@ -47,17 +49,17 @@ class Tracker:
         newTrajectory = Trajectory()
         self.trajectories.append(newTrajectory)
 
-        if TRACKING_ALGO == 1:
+        if self.TRACKING_ALGO == 1:
             newTracker = cv2.legacy.TrackerMOSSE_create()
-        elif TRACKING_ALGO == 2:
+        elif self.TRACKING_ALGO == 2:
             newTracker = cv2.TrackerKCF_create()
-        elif TRACKING_ALGO == 3:
+        elif self.TRACKING_ALGO == 3:
             newTracker = cv2.legacy.TrackerMIL_create()
-        elif TRACKING_ALGO == 4:
+        elif self.TRACKING_ALGO == 4:
             newTracker = cv2.legacy.TrackerCSRT_create()
-        elif TRACKING_ALGO == 5:
+        elif self.TRACKING_ALGO == 5:
             newTracker = cv2.TrackerGOTURN_create()
-        elif TRACKING_ALGO == 6:
+        elif self.TRACKING_ALGO == 6:
             newTracker = cv2.legacy.TrackerMedianFlow_create()
         newTracker.init(frame, (bbox[0], bbox[1], bbox[2], bbox[3]))
         self.trackers.append(newTracker)

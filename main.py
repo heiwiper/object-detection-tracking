@@ -18,7 +18,7 @@ for frame in filenames:
 
 print("Finished reading images")
 
-tracker = Tracker()
+tracker = Tracker(TRACKING_ALGO)
 
 
 #Main Function

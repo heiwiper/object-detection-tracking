@@ -1,0 +1,67 @@
+# :kivy 2.0.0
+
+<MainWindow>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            Image:
+                id: frame_image
+                allow_stretch: True
+                source: './res/video-240.png'
+        BoxLayout:
+            orientation: 'horizontal'
+            Spinner:
+                id: video_spinner
+                text: "highway"
+                values: "backdoor", "bungalows", "highway", "office", "pedestrians", "peopleInShade", "PETS2006"
+                # size_hint: (None, None)
+                size_hint_y: None
+                height: '48dp'
+                disabled: True
+                on_text: root.switch_video()
+            Spinner:
+                id: tracking_spinner
+                text: "MOSSE"
+                values: "MOSSE", "KFC", "MIL", "CSRT", "GOTURN", "Median Flow"
+                # size_hint: (None, None)
+                size_hint_y: None
+                height: '48dp'
+                disabled: True
+                on_text: root.switch_tracking_algo()
+            Spinner:
+                id: detection_spinner
+                text: "Haarcascade"
+                values: "Background substraction", "Haarcascade"
+                # size_hint: (None, None)
+                size_hint_y: None
+                height: '48dp'
+                disabled: True
+                on_text: root.switch_detection_algo()
+            Button:
+                id: play_button
+                size_hint: (None, None)
+                height: '48dp'
+                on_release: root.playing = True
+                disabled: True
+                Image:
+                    size: self.parent.size
+                    pos: self.parent.pos
+                    source: './res/play-24.png'
+            Button:
+                id: pause_button
+                size_hint: (None, None)
+                height: '48dp'
+                disabled: True
+                on_release: root.playing = False
+                Image:
+                    size: self.parent.size
+                    pos: self.parent.pos
+                    source: './res/pause-24.png'
+            Button:
+                size_hint: (None, None)
+                height: '48dp'
+                on_release: root.reload()
+                Image:
+                    size: self.parent.size
+                    pos: self.parent.pos
+                    source: './res/reload-24.png'
