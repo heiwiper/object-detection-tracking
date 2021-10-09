@@ -1,0 +1,15 @@
+#+HTML: <p align="center"><img src="./images/preview.png" /></p>
+* Description
+  This project was carried out for educational purpose, its main objective is to apply object detection and tracking on pedestrians and cars from [[http://jacarini.dinf.usherbrooke.ca/dataset2012/][CDW-2012 dataset]].
+  It makes use of OpenCV library to detect objects using Haarcascade or background subtraction and then it tracks the trajectory of each object using different tracking algorithms (=opencv-contrib-python= was used because it implements more tracking algorithms compared to =opencv-python=).
+* Build
+  1. Install required python packages.
+#+BEGIN_SRC shell
+  pip install -r requirements.txt
+#+END_SRC
+  2. Download [[http://jacarini.dinf.usherbrooke.ca/dataset2012/][CDW-2012 dataset]] and extract dataset folder in the root folder of this project.
+  3. Download [[https://github.com/Mogball/goturn-files][GOTURN pretrained model]] and extract =goturn.caffemodel= in the root folder of this project.
+  4. Execute =app.py=.
+#+BEGIN_SRC shell
+  python app.py
+#+END_SRC
